@@ -1,0 +1,66 @@
+\documentclass{amsart}
+\usepackage{mathtools,upref,siunitx,upquote,fancyvrb,bbm,color}
+\usepackage[hyphens]{url}
+\usepackage[utf8]{inputenc}
+\input{FJHDef.tex}
+
+
+\usepackage{algpseudocode}
+\usepackage{algorithm, algorithmicx}
+\algnewcommand\algorithmicparam{\textbf{Parameters:}}
+\algnewcommand\PARAM{\item[\algorithmicparam]}
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\INPUT{\item[\algorithmicinput]}
+\algnewcommand\RETURN{\State \textbf{Return }}
+
+
+
+\begin{document}
+\title{Stratified Sampling on $\reals$ for an Arbitrary Dimension}
+\author{Fred J. Hickernell}
+\begin{abstract}This project is where all of the files go that are needed elsewhere
+\end{abstract}
+
+\maketitle
+
+Consider the one-dimensional problem of estimating the integral $\int_{\reals} f(x) \, \lambda(x) \, \dif x$, where $\lambda$ is a weight fucnction.  Define breakpoints, $\xi_0, \ldots, \xi_n$, and let 
+\begin{equation*}
+    \mu = \int_{\reals} f(x) \, \lambda(x) \, \dif x = \mu_1 + \cdots + \mu_n, \qquad \mu_i = \int_{\xi_{i-1}}^{\xi_i} f(x) \, \lambda(x) \, \dif x.
+\end{equation*}
+We want to estimate each $\mu_i$ by a single sample taken at $X_i \IIDsim \varrho|[\xi_{i-1},\xi_i]$, where $\varrho$ is a probability density function satisfying $\int_{\xi_{i-1}}^{\xi_i} \varrho(x) \, \dif x =  1/n$:
+\begin{equation*}
+    \hmu_i = \frac{f(X_i) \lambda(X_i)}{n\varrho(X_i)}, \qquad \bbE(\hmu_i) = \mu_i.
+\end{equation*}
+This implies that $\hmu = \hmu_1 + \cdots + \hmu_n$ is an unbiased estimator for $\mu$.
+
+Can the variance of this estimator be made to be $\Order(n^{-3/2})$?
+
+Since the $\hmu_i$ are mutually independent, although not identically distributed, $\var(\hmu) = \var(\hmu_1) + \cdots \var(\hmu_i)$.  Moreover,
+\begin{align*}
+\var(\hmu_i) & = \frac{1}{n^2} \int_{\xi_{i-1}}^{\xi_i} [g(x) - \mu_i]^2 n\varrho(x) \, \dif x, \qquad g(x) =  \frac{f(x) \lambda(x)}{\varrho(x)} \\
+& = \frac{1}{K^2}\sum_{k=1}^K \int_{(k-1)/K}^{k/K} [g(z) - \mu_k]^2 \, K \, \dif z, \qquad g(z) = f(F^{-1}(z)) \\
+& = \frac{1}{K^2}\sum_{k=1}^K \int_{(k-1)/K}^{k/K} [g'(c_{k}(z))(z-b_k)]^2 \, K \,\dif z, \qquad \mu_k=g(b_k) \\
+& \le \frac{\norm[\infty]{g'}^2}{K^3} \\
+\var(\hmu_{\text{S},n})& \le \frac{\var(Y_{\text{S}})}{M} = \frac{\norm[\infty]{g'}^2}{MK^3} =\frac{\norm[\infty]{g'}^2}{nK^2} = \frac{M^2\norm[\infty]{g'}^2}{n^3} .
+\end{align*}
+
+For the stratified sampling estimator we have 
+\begin{gather*}
+Y_{\cdot k}=f(X_{\cdot k}), \quad X_{\cdot k}=F^{-1}(Z_{k}), \quad Z_{k} = \frac{k-1 + U_{k}}{K} \sim \cu \left[\frac{k-1}K, \frac kK\right], \\
+Y_{\text{S}} = \frac1K \sum_{k=1}^K Y_{\cdot k}, \qquad \hmu_{\text{S},n} = \frac 1M \sum_{i=1}^M Y_{\text{S},i} = \frac 1n \sum_{i=1}^M \sum_{k=1}^K Y_{ik}, \qquad n=mK,\\
+\var(\hmu_{\text{S},n}) \le  \frac{\norm[\infty]{g'}^2}{MK^3} = \frac{\norm[\infty]{g'}^2}{nK^2} = \frac{M^2\norm[\infty]{g'}^2}{n^3}
+\end{gather*}
+Making $M$ larger (with fixed $K$) just makes more points per stratum and the RMSE goes only like $\Order(n^{-1/2})$.  However, we can use the fixed-width confidence interval methodology for IID sampling.   
+
+Making $K$ larger (with fixed $M$) increases the number of strata and the RMSE goes like $\Order(n^{-3/2})$. However, we cannot use the fixed-width confidence interval methodology for IID sampling.
+
+
+
+
+
+\bibliographystyle{amsplain}
+\bibliography{FJH23,FJHown23}
+
+
+
+\end{document}
