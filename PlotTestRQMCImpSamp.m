@@ -20,14 +20,14 @@ for ii = 1:ntf
          h(5) = loglog(nvec,rmseTrans(:,ii,jj),'.','Color',MATLABOrange);
          h(6) = loglog([1; nmax],rmseTrans(nlen,ii,jj).*[nmax^(3/2); 1],'-','Color',MATLABOrange);
          legend(h(1:6),{label1,'$O(n^{-1}$)',['IID ' label1],'$O(n^{-1/2}$)', ...
-            vt(jj).label2,'$O(n^{-3/2})$'},'box','off')
+            vt(jj).label2,'$O(n^{-3/2})$'},'box','off','location','southwest')
       else
          h(5) = loglog([1; nmax],rmseSobnat(nlen,ii).*[nmax^(3/2); 1],'-','Color',MATLABOrange);
          legend(h(1:5),{label1,'$O(n^{-1})$',['IID ' label1],'$O(n^{-1/2})$', ...
-            '$O(n^{-3/2})$'},'box','off')
+            '$O(n^{-3/2})$'},'box','off','location','southwest')
       end
-      axis([1 3e6 1e-6 1e3])
-      set(gca,'XTick',10.^(0:2:6),'Ytick',10.^(-6:2:2))
+      axis([1 3e6 1e-15 1e3])
+      set(gca,'XTick',10.^(0:3:6),'Ytick',10.^(-13:3:2))
         title(tf(ii).testfuntitle(tf(ii).d))
         ylabel('Relative Error')
         if yesGauss
