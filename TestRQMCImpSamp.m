@@ -4,7 +4,7 @@
 gail.InitializeWorkspaceDisplay
 tstart = tic;
 tlast = tstart;
-m = 8;
+m = 20;
 nvec = 2.^(0:m)';
 nlen = length(nvec);
 nmax = nvec(end);
@@ -26,21 +26,32 @@ a = (1:dmax)'.^-4;
 [tf([1 4]).trueint] = deal(@(d) prod((exp(a(1:d))- 1)./a(1:d))); 
 [tf([7 10]).trueint] = deal(@(d) exp(sum(a(1:d).^2)/2)); 
 [tf([1 4 7 10]).testfunname] = deal('exp');
-[tf([1 4 7 10]).testfuntitle] = ...
+[tf([1 7]).testfuntitle] = ...
+    deal(@(d)['$\exp(' coeftostr(a(1)) '\textit{t}_1 + ' ...
+    coeftostr(a(2)) '\textit{t}_2 + ' ...
+    coeftostr(a(3)) '\textit{t}_3)$'] );
+[tf([4 10]).testfuntitle] = ...
     deal(@(d)['$\exp(' coeftostr(a(1)) '\textit{t}_1 + \cdots + ' ...
     coeftostr(a(d)) '\textit{t}_{' int2str(d) '})$'] );
 [tf([2 5 8 11]).testfun] = deal(@(t,d) 1 + t*a(1:d)); 
 [tf([2 5]).trueint] = deal(@(d) 1 + sum(a(1:d))/2);  
 [tf([8 11]).trueint] = deal(@(d) 1);  
 [tf([2 5 8 11]).testfunname] = deal('t');
-[tf([2 5 8 11]).testfuntitle] = ...
+[tf([2 8]).testfuntitle] = ...
+    deal(@(d)['$1 + ' coeftostr(a(1)) '\textit{t}_1 + ' ...
+    coeftostr(a(2)) '\textit{t}_2 + ' ...
+    coeftostr(a(3)) '\textit{t}_3$']);
+[tf([5 11]).testfuntitle] = ...
     deal(@(d)['$1 + ' coeftostr(a(1)) '\textit{t}_1 + \cdots + ' ...
     coeftostr(a(d)) '\textit{t}_{' int2str(d) '}$']);
 [tf([3 6 9 12]).testfun] = deal(@(t,d) sum((t .* a(1:d)').^2,2)); 
 [tf([3 6]).trueint] = deal(@(d)sum(a(1:d).^2)/3); 
 [tf([9 12]).trueint] = deal(@(d)sum(a(1:d).^2)); 
 [tf([3 6 9 12]).testfunname] = deal('tsq');
-[tf([3 6 9 12]).testfuntitle] = deal(@(d)['$' coeftostr(a(1)^2) '\textit{t}_1^2 + \cdots + ' ...
+[tf([3 9]).testfuntitle] = deal(@(d)['$' coeftostr(a(1)^2) '\textit{t}_1^2 + ' ...
+    coeftostr(a(2)^2) '\textit{t}_2^2 + ' ...
+    coeftostr(a(3)^2) '\textit{t}_3^2$']);
+[tf([6 12]).testfuntitle] = deal(@(d)['$' coeftostr(a(1)^2) '\textit{t}_1^2 + \cdots + ' ...
     coeftostr(a(d)^2) '\textit{t}_{' int2str(d) '}^2$']);
 [tf(1:6).weight] = deal(@(t) 1);
 [tf(1:6).weightname] = deal('uniform');
@@ -66,8 +77,12 @@ rmseSobnat(nlen,ntf) = 0;
 rmseIIDnat(nlen,ntf) = 0;
 rmseTrans(nlen,ntf,nvt)=0;
 
+%whii = 1:ntf;
+whii = [1 7];
+%whjj = 1:nvt;
+whjj = 2;
 %%Perform calculations
-for ii = 1:ntf
+for ii = whii
     disp([ii 0])
     tlast = tic;
     yesGauss = strcmp(tf(ii).weightname,'stdGauss');
@@ -83,7 +98,7 @@ for ii = 1:ntf
     rmseIIDnat(:,ii) = compSobolIID('IID',tf(ii).d,nvec,nrep,unitfun,tf(ii).trueint(tf(ii).d));   
    
     if yesGauss %try alternative transforms
-        for jj = 1:nvt
+        for jj = whjj
            if toc(tlast) > 2
               disp([ii jj])
               tlast = tic;
@@ -97,7 +112,8 @@ for ii = 1:ntf
 end
 
 datafile = ['TestRQMCImpSampResults-' datestr(now,'yy-mm-dd-HH-MM-SS')];
-save(datafile,'m','ntf','nvt','nvec','nlen','nmax','tf','vt','rmseSobnat','rmseIIDnat','rmseTrans');
+save(datafile,'m','ntf','nvt','nvec','nlen','nmax','tf','vt','rmseSobnat', ...
+    'rmseIIDnat','rmseTrans','whii','whjj');
 PlotTestRQMCImpSamp(datafile)
 toc(tstart)
 
